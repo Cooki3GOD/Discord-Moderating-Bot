@@ -13,13 +13,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Cooki3GOD/Discord-Moderating-Bot/issues"
   },
   "homepage": "https://github.com/Cooki3GOD/Discord-Moderating-Bot#readme",
   "dependencies": {
     "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
     "nodemon": "^3.1.9"
   }
 }

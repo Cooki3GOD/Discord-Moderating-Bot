@@ -1,15 +1,26 @@
-const { Client, IntentsBitField } = require("discord.js");
-const dotenv = require("dotenv");
+import { Client, GatewayIntentBits } from "discord.js";
+import dotenv from "dotenv";
 dotenv.config();
 
 const client = new Client({
     intents: [
-        IntentsBitField.FLAGS.Guilds,
-        IntentsBitField.FLAGS.GuildMessages,
-        IntentsBitField.FLAGS.GuildMembers,
-        intentsBitField.FLAGS.MessageContent,
-        intentsBitField.FLAGS.MessageCreate,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.MessageContent, // Ensure this is enabled in the Developer Portal
     ],
-})
+});
 
-client.login(DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN);
+
+client.once('ready', () => {
+    console.log('Ready!');
+});
+
+client.on("messageCreate", async (message) => {
+    console.log(message);
+
+    if(!message.author.bot) {
+        message.author.send(`Echo ${message.content}`);
+    }
+});
