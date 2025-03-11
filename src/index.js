@@ -24,6 +24,10 @@ client.on("messageCreate", async (message) => {
         const args = message.content.split(' ');
         const command = args.shift().toLowerCase();
 
+        if (command === '!help') {
+            message.channel.send('Available commands:\n!kick @user - Kick a user\n!ban @user - Ban a user');
+        }
+
         if (command === '!kick') {
             if (!message.member.permissions.has('KICK_MEMBERS')) {
                 return message.reply('You do not have permission to kick members.');
