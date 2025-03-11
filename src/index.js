@@ -26,6 +26,13 @@ client.once('ready', () => {
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
 
+    // Check for Discord links
+    const discordLinkRegex = /discord\.gg\/\w+|discord\.com\/invite\/\w+/i;
+    if (discordLinkRegex.test(message.content)) {
+        await message.delete();
+        return message.channel.send(`${message.author}, Discord links are not allowed.`);
+    }
+
     const args = message.content.split(' ');
     const command = args.shift().toLowerCase();
 
