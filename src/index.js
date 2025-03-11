@@ -22,12 +22,35 @@ client.once('ready', () => {
     console.log('Ready!');
 });
 
-// Data structure to store warnings
+// Data structure to store warnings and message counts
 const warnings = new Map();
+const messageCounts = new Map();
+const SPAM_THRESHOLD = 5; // Number of messages allowed within the time frame
+const TIME_FRAME = 10000; // Time frame in milliseconds (10 seconds)
 
 // Event listener for message creation
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
+
+    // Check for spam
+    const userId = message.author.id;
+    if (!messageCounts.has(userId)) {
+        messageCounts.set(userId, []);
+    }
+
+    const timestamps = messageCounts.get(userId);
+    const now = Date.now();
+    timestamps.push(now);
+
+    // Remove timestamps older than the time frame
+    while (timestamps.length > 0 && now - timestamps[0] > TIME_FRAME) {
+        timestamps.shift();
+    }
+
+    if (timestamps.length > SPAM_THRESHOLD) {
+        await message.delete();
+        return message.channel.send(`${message.author}, you are sending messages too quickly. Please slow down.`);
+    }
 
     // Check for Discord links
     const discordLinkRegex = /discord\.gg\/\w+|discord\.com\/invite\/\w+/i;
