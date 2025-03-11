@@ -1,5 +1,17 @@
 import pkg from "discord.js";
 import dotenv from "dotenv";
+
+// Import the command handlers
+import { handleHelpCommand } from "./commands/help.js"; // Import the handleHelpCommand function
+import { handleKickCommand } from "./commands/kick.js"; // Import the handleKickCommand function
+import { handleBanCommand } from "./commands/ban.js"; // Import the handleBanCommand function
+import { handleTempBanCommand } from "./commands/tempban.js"; // Import the handleTempBanCommand function
+import { handleRulesCommand } from "./commands/rules.js"; // Import the handleRulesCommand function
+import { handleWarnCommand, handleWarningsCommand } from "./commands/warns.js"; // Import the handleWarnCommand and handleWarningsCommand functions
+import { handleClearCommand } from "./commands/clear.js"; // Import the handleClearCommand function
+import { handleRoleAddCommand, handleRoleRemoveCommand } from "./commands/roles.js"; // Import the handleRoleAddCommand and handleRoleRemoveCommand functions
+
+// Load environment variables from a .env file
 dotenv.config();
 
 const { Client, GatewayIntentBits, PermissionsBitField } = pkg;
@@ -98,223 +110,18 @@ client.on("messageCreate", async (message) => {
     }
 });
 
-// Handle the !help command
-function handleHelpCommand(message) {
-    message.channel.send(
-        'Available commands:\n' +
-        '!kick @user - Kick a user\n' +
-        '!ban @user - Ban a user\n' +
-        '!tempban @user duration - Temporarily ban a user for a specified duration (in minutes)\n' +
-        '!rules - Display the server rules\n' +
-        '!warn @user reason - Warn a user with a specified reason\n' +
-        '!warnings @user - Display warnings for a user\n' +
-        '!clear number - Clear a specified number of messages from the channel\n' +
-        '!roleadd @user <role> - Add a role to a user\n' +
-        '!roleremove @user <role> - Remove a role from a user'
-    );
-}
+// Remove the existing handleHelpCommand function from here
 
-// Handle the !kick command
-async function handleKickCommand(message) {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
-        return message.reply('You do not have permission to kick members.');
-    }
+// Remove the existing handleKickCommand function from here
 
-    const member = message.mentions.members.first();
-    if (!member) {
-        return message.reply('Please mention a valid member to kick.');
-    }
+// Remove the existing handleBanCommand function from here
 
-    try {
-        await member.kick();
-        message.channel.send(`${member.user.tag} has been kicked.`);
-    } catch (error) {
-        message.channel.send(`I cannot kick ${member.user.tag}.`);
-        console.error(error);
-    }
-}
+// Remove the existing handleTempBanCommand function from here
 
-// Handle the !ban command
-async function handleBanCommand(message) {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-        return message.reply('You do not have permission to ban members.');
-    }
+// Remove the existing handleRulesCommand function from here
 
-    const member = message.mentions.members.first();
-    if (!member) {
-        return message.reply('Please mention a valid member to ban.');
-    }
+// Remove the existing handleWarnCommand function from here and HandleWarningsCommand function from here
 
-    try {
-        await member.ban();
-        message.channel.send(`${member.user.tag} has been banned.`);
-    } catch (error) {
-        message.channel.send(`I cannot ban ${member.user.tag}.`);
-        console.error(error);
-    }
-}
+// Remove the existing handleClearCommand function from here
 
-// Handle the !tempban command
-async function handleTempBanCommand(message, args) {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-        return message.reply('You do not have permission to ban members.');
-    }
-
-    const member = message.mentions.members.first();
-    const duration = parseInt(args[0], 10);
-
-    if (!member || isNaN(duration)) {
-        return message.reply('Please mention a valid member to ban and specify a valid duration in minutes.');
-    }
-
-    try {
-        await member.ban();
-        message.channel.send(`${member.user.tag} has been temporarily banned for ${duration} minutes.`);
-
-        setTimeout(async () => {
-            try {
-                await message.guild.members.unban(member.id);
-                message.channel.send(`${member.user.tag} has been unbanned.`);
-            } catch (error) {
-                console.error(`Failed to unban ${member.user.tag}:`, error);
-            }
-        }, duration * 60 * 1000); // Convert minutes to milliseconds
-    } catch (error) {
-        message.channel.send(`I cannot ban ${member.user.tag}.`);
-        console.error(error);
-    }
-}
-
-// Handle the !rules command
-async function handleRulesCommand(message) {
-    message.channel.send('Server rules: ...');
-}
-
-// Handle the !warn command
-async function handleWarnCommand(message, args) {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
-        return message.reply('You do not have permission to warn members.');
-    }
-
-    const member = message.mentions.members.first();
-    const reason = args.slice(1).join(' ');
-
-    if (!member || !reason) {
-        return message.reply('Please mention a valid member to warn and provide a reason.');
-    }
-
-    if (!warnings.has(member.id)) {
-        warnings.set(member.id, []);
-    }
-
-    warnings.get(member.id).push(reason);
-    const warningCount = warnings.get(member.id).length;
-
-    message.channel.send(`${member.user.tag} has been warned. Reason: ${reason}. This is warning #${warningCount}.`);
-
-    // Take action if the user reaches 3 warnings
-    if (warningCount >= 3) {
-        try {
-            await member.kick();
-            message.channel.send(`${member.user.tag} has been kicked due to receiving 3 warnings.`);
-        } catch (error) {
-            message.channel.send(`I cannot kick ${member.user.tag}.`);
-            console.error(error);
-        }
-    }
-}
-
-// Handle the !warnings command
-async function handleWarningsCommand(message) {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
-        return message.reply('You do not have permission to view warnings.');
-    }
-
-    const member = message.mentions.members.first();
-    if (!member) {
-        return message.reply('Please mention a valid member to view warnings.');
-    }
-
-    if (!warnings.has(member.id)) {
-        return message.reply(`${member.user.tag} has no warnings.`);
-    }
-
-    const userWarnings = warnings.get(member.id);
-    message.channel.send(`${member.user.tag} has the following warnings:\n${userWarnings.join('\n')}`);
-}
-
-// Handle the !clear command
-async function handleClearCommand(message, args) {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-        return message.reply('You do not have permission to manage messages.');
-    }
-
-    const amount = parseInt(args[0], 10);
-    if (isNaN(amount) || amount <= 0) {
-        return message.reply('Please specify a valid number of messages to clear.');
-    }
-
-    try {
-        await message.channel.bulkDelete(amount, true);
-        message.channel.send(`Cleared ${amount} messages.`).then(msg => {
-            setTimeout(() => msg.delete(), 5000);
-        });
-    } catch (error) {
-        message.channel.send('There was an error trying to clear messages in this channel.');
-        console.error(error);
-    }
-}
-
-// Handle the !roleAdd command
-async function handleRoleAddCommand(message, args) {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
-        return message.reply('You do not have permission to manage roles.');
-    }
-
-    const member = message.mentions.members.first();
-    const roleName = args.slice(1).join(' ');
-
-    if (!member || !roleName) {
-        return message.reply('Please mention a valid member and specify a role.');
-    }
-
-    const role = message.guild.roles.cache.find(r => r.name === roleName);
-    if (!role) {
-        return message.reply('Role not found.');
-    }
-
-    try {
-        await member.roles.add(role);
-        message.channel.send(`${member.user.tag} has been given the role ${role.name}.`);
-    } catch (error) {
-        message.channel.send(`I cannot add the role ${role.name} to ${member.user.tag}.`);
-        console.error(error);
-    }
-}
-
-// Handle the !roleRemove command
-async function handleRoleRemoveCommand(message, args) {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
-        return message.reply('You do not have permission to manage roles.');
-    }
-
-    const member = message.mentions.members.first();
-    const roleName = args.slice(1).join(' ');
-
-    if (!member || !roleName) {
-        return message.reply('Please mention a valid member and specify a role.');
-    }
-
-    const role = message.guild.roles.cache.find(r => r.name === roleName);
-    if (!role) {
-        return message.reply('Role not found.');
-    }
-
-    try {
-        await member.roles.remove(role);
-        message.channel.send(`${member.user.tag} has been removed from the role ${role.name}.`);
-    } catch (error) {
-        message.channel.send(`I cannot remove the role ${role.name} from ${member.user.tag}.`);
-        console.error(error);
-    }
-}
+// Remove the existing handleRoleAddCommand function from here and handleRoleRemoveCommand function from here
