@@ -84,8 +84,8 @@ client.on("messageCreate", async (message) => {
         case '!warnings':
             handleWarningsCommand(message);
             break;
-        case '!announce':
-            handleAnnounceCommand(message, args);
+        case '!clear':
+            handleClearCommand(message, args);
             break;
         default:
             break;
@@ -102,7 +102,7 @@ function handleHelpCommand(message) {
         '!rules - Display the server rules\n' +
         '!warn @user reason - Warn a user with a specified reason\n' +
         '!warnings @user - Display warnings for a user\n' +
-        '!announce message - Send an announcement to the announcement channel'
+        '!clear number - Clear a specified number of messages from the channel'
     );
 }
 
@@ -235,27 +235,24 @@ async function handleWarningsCommand(message) {
     message.channel.send(`${member.user.tag} has the following warnings:\n${userWarnings.join('\n')}`);
 }
 
-// Handle the !announce command
-async function handleAnnounceCommand(message, args) {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        return message.reply('You do not have permission to make announcements.');
+// Handle the !clear command
+async function handleClearCommand(message, args) {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+        return message.reply('You do not have permission to manage messages.');
     }
 
-    const announcementChannel = message.guild.channels.cache.find(channel => channel.name === 'announcements');
-    if (!announcementChannel) {
-        return message.reply('Announcement channel not found.');
-    }
-
-    const announcement = args.join(' ');
-    if (!announcement) {
-        return message.reply('Please provide a message to announce.');
+    const amount = parseInt(args[0], 10);
+    if (isNaN(amount) || amount <= 0) {
+        return message.reply('Please specify a valid number of messages to clear.');
     }
 
     try {
-        await announcementChannel.send(announcement);
-        message.channel.send('Announcement sent.');
+        await message.channel.bulkDelete(amount, true);
+        message.channel.send(`Cleared ${amount} messages.`).then(msg => {
+            setTimeout(() => msg.delete(), 5000);
+        });
     } catch (error) {
-        message.channel.send('Failed to send announcement.');
+        message.channel.send('There was an error trying to clear messages in this channel.');
         console.error(error);
     }
 }
