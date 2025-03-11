@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Cooki3GOD/Discord-Moderating-Bot#readme",
   "dependencies": {
-    "discord.js": "^14.18.0"
+    "discord.js": "^14.18.0",
+    "nodemon": "^3.1.9"
   }
 }

@@ -12,4 +12,4 @@ const client = new Client({
     ],
 })
 
-client.login(DISCORD_TOKEN)
+client.login(DISCORD_TOKEN);
