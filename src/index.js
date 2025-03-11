@@ -84,6 +84,9 @@ client.on("messageCreate", async (message) => {
         case '!warnings':
             handleWarningsCommand(message);
             break;
+        case '!announce':
+            handleAnnounceCommand(message, args);
+            break;
         default:
             break;
     }
@@ -98,7 +101,8 @@ function handleHelpCommand(message) {
         '!tempban @user duration - Temporarily ban a user for a specified duration (in minutes)\n' +
         '!rules - Display the server rules\n' +
         '!warn @user reason - Warn a user with a specified reason\n' +
-        '!warnings @user - Display warnings for a user'
+        '!warnings @user - Display warnings for a user\n' +
+        '!announce message - Send an announcement to the announcement channel'
     );
 }
 
@@ -229,4 +233,29 @@ async function handleWarningsCommand(message) {
 
     const userWarnings = warnings.get(member.id);
     message.channel.send(`${member.user.tag} has the following warnings:\n${userWarnings.join('\n')}`);
+}
+
+// Handle the !announce command
+async function handleAnnounceCommand(message, args) {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        return message.reply('You do not have permission to make announcements.');
+    }
+
+    const announcementChannel = message.guild.channels.cache.find(channel => channel.name === 'announcements');
+    if (!announcementChannel) {
+        return message.reply('Announcement channel not found.');
+    }
+
+    const announcement = args.join(' ');
+    if (!announcement) {
+        return message.reply('Please provide a message to announce.');
+    }
+
+    try {
+        await announcementChannel.send(announcement);
+        message.channel.send('Announcement sent.');
+    } catch (error) {
+        message.channel.send('Failed to send announcement.');
+        console.error(error);
+    }
 }
