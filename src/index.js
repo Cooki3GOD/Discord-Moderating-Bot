@@ -1,7 +1,10 @@
-import { Client, GatewayIntentBits } from "discord.js";
+import pkg from "discord.js";
 import dotenv from "dotenv";
 dotenv.config();
 
+const { Client, GatewayIntentBits, PermissionsBitField } = pkg;
+
+// Initialize the Discord client with necessary intents
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -11,12 +14,15 @@ const client = new Client({
     ],
 });
 
+// Log in to Discord with the bot token
 client.login(process.env.DISCORD_TOKEN);
 
+// Event listener for when the bot is ready
 client.once('ready', () => {
     console.log('Ready!');
 });
 
+// Event listener for message creation
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
 
@@ -36,22 +42,28 @@ client.on("messageCreate", async (message) => {
         case '!tempban':
             handleTempBanCommand(message, args);
             break;
+        case '!rules':
+            handleRulesCommand(message);
+            break;
         default:
             break;
     }
 });
 
+// Handle the !help command
 function handleHelpCommand(message) {
     message.channel.send(
         'Available commands:\n' +
         '!kick @user - Kick a user\n' +
         '!ban @user - Ban a user\n' +
-        '!tempban @user duration - Temporarily ban a user for a specified duration (in minutes)'
+        '!tempban @user duration - Temporarily ban a user for a specified duration (in minutes)\n' +
+        '!rules - Display the server rules'
     );
 }
 
+// Handle the !kick command
 async function handleKickCommand(message) {
-    if (!message.member.permissions.has('KICK_MEMBERS')) {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
         return message.reply('You do not have permission to kick members.');
     }
 
@@ -69,8 +81,9 @@ async function handleKickCommand(message) {
     }
 }
 
+// Handle the !ban command
 async function handleBanCommand(message) {
-    if (!message.member.permissions.has('BAN_MEMBERS')) {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
         return message.reply('You do not have permission to ban members.');
     }
 
@@ -88,8 +101,9 @@ async function handleBanCommand(message) {
     }
 }
 
+// Handle the !tempban command
 async function handleTempBanCommand(message, args) {
-    if (!message.member.permissions.has('BAN_MEMBERS')) {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
         return message.reply('You do not have permission to ban members.');
     }
 
@@ -116,4 +130,9 @@ async function handleTempBanCommand(message, args) {
         message.channel.send(`I cannot ban ${member.user.tag}.`);
         console.error(error);
     }
+}
+
+// Handle the !rules command
+async function handleRulesCommand(message) {
+    message.channel.send('Server rules: ...');
 }
