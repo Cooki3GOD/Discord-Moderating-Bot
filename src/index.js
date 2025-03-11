@@ -22,6 +22,9 @@ client.once('ready', () => {
     console.log('Ready!');
 });
 
+// Data structure to store warnings
+const warnings = new Map();
+
 // Event listener for message creation
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
@@ -52,6 +55,12 @@ client.on("messageCreate", async (message) => {
         case '!rules':
             handleRulesCommand(message);
             break;
+        case '!warn':
+            handleWarnCommand(message, args);
+            break;
+        case '!warnings':
+            handleWarningsCommand(message);
+            break;
         default:
             break;
     }
@@ -64,7 +73,9 @@ function handleHelpCommand(message) {
         '!kick @user - Kick a user\n' +
         '!ban @user - Ban a user\n' +
         '!tempban @user duration - Temporarily ban a user for a specified duration (in minutes)\n' +
-        '!rules - Display the server rules'
+        '!rules - Display the server rules\n' +
+        '!warn @user reason - Warn a user with a specified reason\n' +
+        '!warnings @user - Display warnings for a user'
     );
 }
 
@@ -142,4 +153,57 @@ async function handleTempBanCommand(message, args) {
 // Handle the !rules command
 async function handleRulesCommand(message) {
     message.channel.send('Server rules: ...');
+}
+
+// Handle the !warn command
+async function handleWarnCommand(message, args) {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+        return message.reply('You do not have permission to warn members.');
+    }
+
+    const member = message.mentions.members.first();
+    const reason = args.slice(1).join(' ');
+
+    if (!member || !reason) {
+        return message.reply('Please mention a valid member to warn and provide a reason.');
+    }
+
+    if (!warnings.has(member.id)) {
+        warnings.set(member.id, []);
+    }
+
+    warnings.get(member.id).push(reason);
+    const warningCount = warnings.get(member.id).length;
+
+    message.channel.send(`${member.user.tag} has been warned. Reason: ${reason}. This is warning #${warningCount}.`);
+
+    // Take action if the user reaches 3 warnings
+    if (warningCount >= 3) {
+        try {
+            await member.kick();
+            message.channel.send(`${member.user.tag} has been kicked due to receiving 3 warnings.`);
+        } catch (error) {
+            message.channel.send(`I cannot kick ${member.user.tag}.`);
+            console.error(error);
+        }
+    }
+}
+
+// Handle the !warnings command
+async function handleWarningsCommand(message) {
+    if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+        return message.reply('You do not have permission to view warnings.');
+    }
+
+    const member = message.mentions.members.first();
+    if (!member) {
+        return message.reply('Please mention a valid member to view warnings.');
+    }
+
+    if (!warnings.has(member.id)) {
+        return message.reply(`${member.user.tag} has no warnings.`);
+    }
+
+    const userWarnings = warnings.get(member.id);
+    message.channel.send(`${member.user.tag} has the following warnings:\n${userWarnings.join('\n')}`);
 }
