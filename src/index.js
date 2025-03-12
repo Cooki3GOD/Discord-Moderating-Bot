@@ -10,6 +10,7 @@ import { handleRulesCommand } from "./commands/rules.js"; // Import the handleRu
 import { handleWarnCommand, handleWarningsCommand } from "./commands/warns.js"; // Import the handleWarnCommand and handleWarningsCommand functions
 import { handleClearCommand } from "./commands/clear.js"; // Import the handleClearCommand function
 import { handleRoleAddCommand, handleRoleRemoveCommand } from "./commands/roles.js"; // Import the handleRoleAddCommand and handleRoleRemoveCommand functions
+import { handleMuteCommand, handleUnmuteCommand } from "./commands/mute.js"; // Import the handleMuteCommand and handleUnmuteCommand function
 
 // Load environment variables from a .env file
 dotenv.config();
@@ -22,7 +23,7 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.MessageContent, // Ensure this is enabled in the Developer Portal
+        GatewayIntentBits.MessageContent, // Required for message content checks
     ],
 });
 
@@ -34,8 +35,7 @@ client.once('ready', () => {
     console.log('Ready!');
 });
 
-// Data structure to store warnings and message counts
-// const warnings = new Map(); // This line is removed because it is not used
+
 const messageCounts = new Map();
 const SPAM_THRESHOLD = 5; // Number of messages allowed within the time frame
 const TIME_FRAME = 10000; // Time frame in milliseconds (10 seconds)
@@ -84,7 +84,6 @@ client.on("messageCreate", async (message) => {
 
     
     // Handle commands
-
     switch (command) {
         case '!help':
             handleHelpCommand(message);
@@ -116,23 +115,13 @@ client.on("messageCreate", async (message) => {
         case '!roleremove':
             handleRoleRemoveCommand(message, args);
             break;
+        case '!mute':
+            handleMuteCommand(message, args);
+            break;
+        case '!unmute':
+            handleUnmuteCommand(message);
+            break
         default:
             break;
     }
 });
-
-// Remove the existing handleHelpCommand function from here
-
-// Remove the existing handleKickCommand function from here
-
-// Remove the existing handleBanCommand function from here
-
-// Remove the existing handleTempBanCommand function from here
-
-// Remove the existing handleRulesCommand function from here
-
-// Remove the existing handleWarnCommand function from here and HandleWarningsCommand function from here
-
-// Remove the existing handleClearCommand function from here
-
-// Remove the existing handleRoleAddCommand function from here and handleRoleRemoveCommand function from here

@@ -9,6 +9,8 @@ export function handleHelpCommand(message) {
         '!warnings @user - Display warnings for a user\n' +
         '!clear number - Clear a specified number of messages from the channel\n' +
         '!roleadd @user <role> - Add a role to a user\n' +
-        '!roleremove @user <role> - Remove a role from a user'
+        '!roleremove @user <role> - Remove a role from a user\n' +
+        '!mute @user duration - Mute a user for a specified duration (e.g., 10m, 1h, 2d)\n' +
+        '!unmute @user - Unmute a user'
     );
 }
