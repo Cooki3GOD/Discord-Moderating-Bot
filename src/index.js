@@ -14,7 +14,7 @@ import { handleRoleAddCommand, handleRoleRemoveCommand } from "./commands/roles.
 // Load environment variables from a .env file
 dotenv.config();
 
-const { Client, GatewayIntentBits, PermissionsBitField } = pkg;
+const { Client, GatewayIntentBits } = pkg;
 
 // Initialize the Discord client with necessary intents
 const client = new Client({
@@ -35,7 +35,7 @@ client.once('ready', () => {
 });
 
 // Data structure to store warnings and message counts
-const warnings = new Map();
+// const warnings = new Map(); // This line is removed because it is not used
 const messageCounts = new Map();
 const SPAM_THRESHOLD = 5; // Number of messages allowed within the time frame
 const TIME_FRAME = 10000; // Time frame in milliseconds (10 seconds)
@@ -73,6 +73,14 @@ client.on("messageCreate", async (message) => {
 
     const args = message.content.split(' ');
     const command = args.shift().toLowerCase();
+    
+    // Check for the N-word
+    const inappropriateWords = ['nigger', 'nigga'];
+    const inappropriateRegex = new RegExp(`\\b(${inappropriateWords.join('|')})\\b`, 'i');
+    if (inappropriateRegex.test(message.content)) {
+        await message.delete();
+        return message.channel.send(`${message.author}, that word is not allowed.`);
+    }
 
     switch (command) {
         case '!help':
