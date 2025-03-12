@@ -11,6 +11,7 @@ import { handleWarnCommand, handleWarningsCommand } from "./commands/warns.js"; 
 import { handleClearCommand } from "./commands/clear.js"; // Import the handleClearCommand function
 import { handleRoleAddCommand, handleRoleRemoveCommand } from "./commands/roles.js"; // Import the handleRoleAddCommand and handleRoleRemoveCommand functions
 import { handleMuteCommand, handleUnmuteCommand } from "./commands/mute.js"; // Import the handleMuteCommand and handleUnmuteCommand function
+import { handleTimeoutCommand } from "./commands/timeout.js"; // Import the handleTimeoutCommand function
 
 // Load environment variables from a .env file
 dotenv.config();
@@ -128,6 +129,9 @@ client.on("messageCreate", async (message) => {
         case '!unmute':
             handleUnmuteCommand(message);
             break
+        case '!timeout':
+            handleTimeoutCommand(message, args);
+            break;
         default:
             break;
     }

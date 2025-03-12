@@ -11,6 +11,7 @@ export function handleHelpCommand(message) {
         '!roleadd @user <role> - Add a role to a user\n' +
         '!roleremove @user <role> - Remove a role from a user\n' +
         '!mute @user duration - Mute a user for a specified duration (e.g., 10m, 1h, 2d)\n' +
-        '!unmute @user - Unmute a user'
+        '!unmute @user - Unmute a user\n' +
+        '!timeout @user duration - Timeout a user for a specified duration (e.g., 10m, 1h, 2d)\n' 
     );
 }
