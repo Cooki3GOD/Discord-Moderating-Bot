@@ -82,6 +82,9 @@ client.on("messageCreate", async (message) => {
         return message.channel.send(`${message.author}, that word is not allowed.`);
     }
 
+    
+    // Handle commands
+
     switch (command) {
         case '!help':
             handleHelpCommand(message);
