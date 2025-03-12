@@ -1,6 +1,6 @@
 import pkg from "discord.js";
 import dotenv from "dotenv";
-import * as commands from "./commands/commandCombiner.js";
+import * as commands from "./commands/index.js";
 
 dotenv.config();
 
@@ -23,7 +23,7 @@ client.once('ready', () => {
 
 const messageCounts = new Map();
 const SPAM_THRESHOLD = 5;
-const TIME_FRAME = 10000;
+const MESSAGE_TIME_FRAME = 10000;
 
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
@@ -37,7 +37,7 @@ client.on("messageCreate", async (message) => {
     const now = Date.now();
     timestamps.push(now);
 
-    while (timestamps.length > 0 && now - timestamps[0] > TIME_FRAME) {
+    while (timestamps.length > 0 && now - timestamps[0] > MESSAGE_TIME_FRAME) {
         timestamps.shift();
     }
 
@@ -87,5 +87,39 @@ client.on("messageCreate", async (message) => {
 
     if (commandHandlers[command]) {
         commandHandlers[command](message, args);
+    }
+});
+
+
+const joinTimestamps = new Map();
+const JOIN_THRESHOLD = 5;
+const TIME_FRAME = 10000;
+const RAID_ACTION = 'kick';
+
+client.on('guildMemberAdd', async (member) => {
+    const guildId = member.guild.id;
+    if (!joinTimestamps.has(guildId)) {
+        joinTimestamps.set(guildId, []);
+    }
+
+    const timestamps = joinTimestamps.get(guildId);
+    const now = Date.now();
+    timestamps.push(now);
+
+    while (timestamps.length > 0 && now - timestamps[0] > TIME_FRAME) {
+        timestamps.shift();
+    }
+
+    if (timestamps.length > JOIN_THRESHOLD) {
+        if (RAID_ACTION === 'kick') {
+            await member.kick('Raid detected');
+        } else if (RAID_ACTION === 'ban') {
+            await member.ban({ reason: 'Raid detected' });
+        }
+
+        const adminChannel = member.guild.channels.cache.find(channel => channel.name === 'admin-notifications');
+        if (adminChannel) {
+            adminChannel.send(`Potential raid detected. ${timestamps.length} users joined within ${TIME_FRAME / 1000} seconds.`);
+        }
     }
 });
