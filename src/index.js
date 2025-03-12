@@ -82,6 +82,13 @@ client.on("messageCreate", async (message) => {
         return message.channel.send(`${message.author}, that word is not allowed.`);
     }
 
+    // Check for excessive caps
+    const capsRegex = /[A-Z]{10,}/;
+    if (capsRegex.test(message.content)) {
+        const lowerCaseMessage = message.content.toLowerCase();
+        await message.delete();
+        return message.channel.send(`${message.author}, please do not use excessive capital letters. Here is your message in lowercase: ${lowerCaseMessage}`);
+    }
     
     // Handle commands
     switch (command) {
